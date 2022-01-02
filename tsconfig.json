@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-  ]
+, "sample_data.js", "seed.js"  ]
 }
