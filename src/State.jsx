@@ -4,6 +4,7 @@ let AppContext = createContext({});
 
 const initialState = {
   appName: 'WhatsApp',
+  user: JSON.parse(localStorage.getItem('whatsapp-clone-user')),
 };
 
 let reducer = (state, action) => {
@@ -13,6 +14,12 @@ let reducer = (state, action) => {
         ...state,
         appName: action.payload.appName,
       };
+    }
+    case 'loadUser': {
+      const user = action.payload;
+      localStorage.setItem('whatsapp-clone-user', JSON.stringify(user));
+
+      return { ...state, user: user };
     }
 
     default:

@@ -1,9 +1,3 @@
-// import { initializeApp } from 'firebase/app';
-// import { getFirestore } from 'firebase/firestore';
-
-// const initializeApp = require('firebase/app');
-// const getFirestore = require('firebase/firestore');
-
 const firebase = require('firebase');
 require('firebase/firestore');
 
