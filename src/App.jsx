@@ -40,6 +40,8 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
+import ChatPage from './pages/ChatPage';
+
 setupIonicReact();
 
 const App = () => {
@@ -59,21 +61,28 @@ const App = () => {
               <Route path="/tab3">
                 <Tab3 />
               </Route>
+              <Route path="/chatpage">
+                <ChatPage />
+              </Route>
               <Route exact path="/">
                 <Redirect to="/tab1" />
               </Route>
             </IonRouterOutlet>
-            <IonTabBar className="menu-bar" slot="top">
-              <IonTabButton tab="tab1" href="/tab1" className="tabButton">
-                <IonLabel>CHATS</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="tab2" href="/tab2" className="tabButton">
-                <IonLabel>STATUS</IonLabel>
-              </IonTabButton>
-              <IonTabButton tab="tab3" href="/tab3" className="tabButton">
-                <IonLabel>CALLS</IonLabel>
-              </IonTabButton>
-            </IonTabBar>
+            {state.noTabs ? (
+              <IonTabBar></IonTabBar>
+            ) : (
+              <IonTabBar className="menu-bar" slot="top">
+                <IonTabButton tab="tab1" href="/tab1" className="tabButton">
+                  <IonLabel>CHATS</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="tab2" href="/tab2" className="tabButton">
+                  <IonLabel>STATUS</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="tab3" href="/tab3" className="tabButton">
+                  <IonLabel>CALLS</IonLabel>
+                </IonTabButton>
+              </IonTabBar>
+            )}
           </IonTabs>
         </IonReactRouter>
       ) : (
