@@ -17,9 +17,12 @@ import {
 } from '@ionic/react';
 import { attachOutline, happyOutline, sendSharp } from 'ionicons/icons';
 import { AppContext } from '../State';
+import db from '../Firestore';
+import Utility from '../Utility';
 
 function ChatPage() {
   const { state, dispatch } = useContext(AppContext);
+  const [message, setMessage] = React.useState();
 
   useIonViewWillLeave(() => {
     dispatch({
@@ -27,6 +30,24 @@ function ChatPage() {
       payload: false,
     });
   });
+
+  const sendMessage = async () => {
+    if (message) {
+      let messageBody = {
+        message_id: Utility.genRandom(),
+        sent_by: state.user.user_id,
+        channel: `${state.user.user_id},${state.chattingWith.user_id}`,
+        type: 'text',
+        message: message,
+        file_url: null,
+        time: +Date.now(),
+      };
+
+      const send_response = await db.collection('messages').add(messageBody);
+
+      setMessage(null);
+    }
+  };
 
   return (
     <IonPage>
@@ -60,7 +81,11 @@ function ChatPage() {
                     </IonCol>
 
                     <IonCol>
-                      <IonInput placeholder="Type a message"></IonInput>
+                      <IonInput
+                        placeholder="Type a message"
+                        value={message}
+                        onIonChange={(e) => setMessage(e.detail.value)}
+                      ></IonInput>
                     </IonCol>
 
                     <IonCol size="2">
@@ -75,7 +100,7 @@ function ChatPage() {
               </IonCol>
 
               <IonCol size="2">
-                <IonButton className="chat-send-button">
+                <IonButton onClick={sendMessage} className="chat-send-button">
                   <IonIcon icon={sendSharp}></IonIcon>
                 </IonButton>
               </IonCol>
