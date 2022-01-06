@@ -13,22 +13,49 @@ import {
   IonRow,
   IonTitle,
   IonToolbar,
+  useIonViewWillEnter,
   useIonViewWillLeave,
 } from '@ionic/react';
 import { attachOutline, happyOutline, sendSharp } from 'ionicons/icons';
 import { AppContext } from '../State';
 import db from '../Firestore';
 import Utility from '../Utility';
+import ChatMessage from '../components/ChatMessage';
 
 function ChatPage() {
   const { state, dispatch } = useContext(AppContext);
   const [message, setMessage] = React.useState();
+  const [chatMessages = [], setChatMessages] = React.useState();
+  let messageSubscription = React.useRef(null);
 
-  useIonViewWillLeave(() => {
+  useIonViewWillEnter(async () => {
+    //channel 'user1,user2' or 'user2,user1'
+    let channel1 = `${state.user.user_id},${state.chattingWith.user_id}`;
+    let channel2 = `${state.chattingWith.user_id},${state.user.user_id}`;
+
+    messageSubscription = await db
+      .collection('messages')
+      .where('channel', 'in', [channel1, channel2])
+      .orderBy('time')
+      .limit(100)
+      .onSnapshot(function (querySnapshot) {
+        let messages = [];
+
+        querySnapshot.forEach(function (doc) {
+          messages.push(doc.data());
+        });
+        setChatMessages(messages);
+      });
+  });
+
+  useIonViewWillLeave(async () => {
     dispatch({
       type: 'setNoTabs',
       payload: false,
     });
+
+    //unsubscribe
+    messageSubscription();
   });
 
   const sendMessage = async () => {
@@ -67,7 +94,11 @@ function ChatPage() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>Hi, this is Chat Page</IonContent>
+      <IonContent className="chat-page-content">
+        {chatMessages.map((chat) => (
+          <ChatMessage key={chat.message_id} chat={chat} />
+        ))}
+      </IonContent>
 
       <IonFooter>
         <IonToolbar>
