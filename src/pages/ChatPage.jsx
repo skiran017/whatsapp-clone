@@ -17,10 +17,14 @@ import {
   useIonViewWillLeave,
 } from '@ionic/react';
 import { attachOutline, happyOutline, sendSharp } from 'ionicons/icons';
+import { Plugins, CameraResultType } from '@capacitor/core';
+
 import { AppContext } from '../State';
 import db from '../Firestore';
 import Utility from '../Utility';
 import ChatMessage from '../components/ChatMessage';
+
+const { Camera } = Plugins;
 
 function ChatPage() {
   const { state, dispatch } = useContext(AppContext);
@@ -58,15 +62,24 @@ function ChatPage() {
     messageSubscription();
   });
 
-  const sendMessage = async () => {
-    if (message) {
+  const getImage = async () => {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: false,
+      resultType: CameraResultType.Base64,
+    });
+    await sendMessage(null, 'media', image.base64String);
+  };
+
+  const sendMessage = async (s = null, type, file = null) => {
+    if (message || type === 'media') {
       let messageBody = {
         message_id: Utility.genRandom(),
         sent_by: state.user.user_id,
         channel: `${state.user.user_id},${state.chattingWith.user_id}`,
-        type: 'text',
-        message: message,
-        file_url: null,
+        type: !type ? 'text' : type,
+        message: message || '',
+        file_url: file,
         time: +Date.now(),
       };
 
@@ -124,6 +137,7 @@ function ChatPage() {
                         className="attach-icon"
                         size="large"
                         icon={attachOutline}
+                        onClick={getImage}
                       ></IonIcon>
                     </IonCol>
                   </IonRow>

@@ -1,5 +1,11 @@
-import React, { useContext } from 'react';
-import { IonItem, IonAvatar, IonLabel, useIonViewDidEnter } from '@ionic/react';
+import React, { useContext, useEffect } from 'react';
+import {
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  useIonViewDidEnter,
+  IonBadge,
+} from '@ionic/react';
 import { useHistory } from 'react-router';
 import { AppContext } from '../State';
 import db from '../Firestore';
@@ -8,6 +14,14 @@ function ChatItem({ contact }) {
   let history = useHistory();
   const { state, dispatch } = useContext(AppContext);
   const [lastMessage = {}, setLastMessage] = React.useState();
+  const [previousLastMessage = {}, setPreviousLastMessage] = React.useState();
+  const [newMessageCount = 0, setNewMessageCount] = React.useState();
+
+  useEffect(() => {
+    if (lastMessage.message_id !== previousLastMessage.message_id) {
+      setNewMessageCount(newMessageCount + 1);
+    }
+  }, [lastMessage]);
 
   // let profile_photo = contact.avatar
   //   ? contact.avatar
@@ -33,6 +47,7 @@ function ChatItem({ contact }) {
           messages.push(doc.data());
         });
         if (messages.length > 0) {
+          setPreviousLastMessage(lastMessage);
           setLastMessage(messages[0]);
         }
       });
@@ -60,6 +75,11 @@ function ChatItem({ contact }) {
         <h2>{contact.name}</h2>
         <p>{lastMessage.message || '...'}</p>
       </IonLabel>
+      {newMessageCount > 0 && (
+        <IonBadge color="success" slot="end">
+          {newMessageCount}
+        </IonBadge>
+      )}
     </IonItem>
   );
 }
